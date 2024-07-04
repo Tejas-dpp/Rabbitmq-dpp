@@ -1,4 +1,9 @@
-FROM python
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY listener.py .
+
 RUN pip install nameko
-COPY listener.py /listener.py
-CMD ["nameko", "run", "--broker", "pyamqp://guest:guest@rabbitmq", "listener"]
+
+CMD ["nameko", "run", "--broker", "amqp://rabbitmq", "listener"]

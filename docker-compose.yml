@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    build: ./rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  publisher:
+    build: ./publisher
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - BROKER_URI=amqp://rabbitmq
+    restart: on-failure
+
+  listener:
+    build: ./listener
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - BROKER_URI=amqp://rabbitmq
+    restart: on-failure
